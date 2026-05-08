@@ -1,6 +1,6 @@
 # Career Fit Scoring System
 
-**DOCX** 및 **PDF** 이력서를 파싱하고 **Azure OpenAI**로 지원자 적합도를 평가하는 Electron 데스크톱 앱입니다. 채용 공고 조건에 맞춰 이력서를 일괄 분석·등급 판정·근거를 제공합니다.
+**DOCX** 및 **PDF** 이력서를 파싱하고 **선택한 AI 제공자**(OpenAI·Gemini·Claude 등)로 지원자 적합도를 평가하는 Electron 데스크톱 앱입니다. 채용 공고 조건에 맞춰 이력서를 일괄 분석·등급 판정·근거를 제공합니다.
 
 ## 프로젝트 개요
 
@@ -8,7 +8,7 @@
 
 ### 주요 특징
 
-- **AI 기반 평가**: Azure OpenAI로 경력 적합도, 필수/우대/자격증 만족도, 등급별 판정·근거 평가 (앱의 메인 평가 방식)
+- **AI 기반 평가**: OpenAI·Gemini·Claude 등으로 경력 적합도, 필수/우대/자격증 만족도, 등급별 판정·근거 평가 (앱의 메인 평가 방식)
 - **이력서 파싱**: DOCX·PDF에서 구조화 데이터 추출 (PDF는 pdftotext 사용, 임베디드 Python 우선)
 - **병렬 처리**: 파싱 최대 4개 동시, AI 분석 최대 3개 동시
 - **진행률·ETA**: 파싱/AI 단계별 진행률 및 예상 남은 시간 표시
@@ -37,7 +37,7 @@
 - **채용 공고 설정**: 직종, 필수/우대 사항, 자격증, 등급별 조건, 점수 가중치 설정
 - **배치 처리**: 여러 이력서 파일을 파싱·AI 분석 병렬 처리
 - **진행 모달**: 파싱 단계·AI 단계별 진행률 및 동시 처리 수 표시 (예: "이력서 파싱 중 (최대 4개 동시)", "AI 분석 중 (최대 3개 동시)")
-- **AI 분석**: Azure OpenAI를 통한 경력 적합도·요구사항 만족도·등급별 판정(gradeEvaluations) 및 근거
+- **AI 분석**: 선택한 제공자 API를 통한 경력 적합도·요구사항 만족도·등급별 판정(gradeEvaluations) 및 근거
 - **결과 시각화**: 테이블·정렬·필터, 상세 패널(증명사진, 리스트 스타일, 기간 표시, AI 등급별 판정·근거)
 - **프롬프트 미리보기**: 설정 화면 footer·결과 화면 헤더에서 AI에 전달되는 System/User 프롬프트 전문 확인
 
@@ -145,7 +145,7 @@ PDF 파싱은 **pdftotext(poppler)만** 사용합니다(레거시 pdfminer.six·
 - **문서 형식 선택**: DOCX 또는 PDF 이력서 모드 선택
 - **폴더 선택**: 해당 형식의 이력서 파일이 있는 폴더 선택 (PDF 모드에서는 파일명이 `*_이력서.pdf` 형태인 항목만 스캔)
 - **병렬 파싱**: 이력서 파일에서 기본 정보, 경력, 학력, 자격증, GPA, 증명사진(PDF 시) 등 추출 (최대 4개 동시)
-- **병렬 AI 분석**: Azure OpenAI를 통한 경력 적합도·요구사항 만족도·등급별 판정 및 근거 평가 (최대 3개 동시)
+- **병렬 AI 분석**: 선택한 제공자 API를 통한 경력 적합도·요구사항 만족도·등급별 판정 및 근거 평가 (최대 3개 동시)
 - **진행 모달**: 파싱 단계·AI 단계별 진행률 및 동시 처리 수 표시
 
 ### 3. 결과 확인
@@ -196,7 +196,7 @@ PDF 파싱은 **pdftotext(poppler)만** 사용합니다(레거시 pdfminer.six·
 **배포·실사용**에서는 회사에서 발급한 **암호화 인증서 파일(.enc)** 을 사용합니다.
 
 - 앱 기동 시 **Electron 메인 프로세스**가 `.enc`를 읽어 **AES-256-CBC**로 복호화하고, 내부 **서명 필드**가 일치할 때만 내용을 `key=value` 형태로 파싱해 `process.env`에 적용합니다.
-- 인증서에 포함할 수 있는 변수 예: `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_DEPLOYMENT`, `AZURE_OPENAI_API_VERSION`, `CAREERNET_API_KEY`, `QNET_API_KEY` 등(팀 정책에 따름).
+- 인증서에 포함할 수 있는 변수 예: `CAREERNET_API_KEY`, `QNET_API_KEY` 등(팀 정책에 따름). 이력서 AI 평가용 키는 앱 **API 키 설정**에서 등록합니다.
 - 마지막으로 선택한 `.enc` **파일 경로**만 사용자 데이터 폴더의 `cert-config.json`(패키지 앱) 또는 `cert-config-dev.json`(개발 모드)에 저장되며, **키 평문은 저장하지 않습니다.**
 - **React(렌더러)** 쪽 번들에는 API 키를 주입하지 않습니다(`vite.config`에서도 키는 렌더러용으로 넣지 않음).
 
@@ -204,10 +204,9 @@ PDF 파싱은 **pdftotext(poppler)만** 사용합니다(레거시 pdfminer.six·
 
 ```bash
 # 로컬 개발 시 참고용 (예시 — 실제 값은 비밀 관리 정책에 따름)
-AZURE_OPENAI_ENDPOINT=https://your-endpoint.openai.azure.com/
-AZURE_OPENAI_API_KEY=your_api_key
-AZURE_OPENAI_DEPLOYMENT=gpt-4o
-AZURE_OPENAI_API_VERSION=2024-12-01-preview
+# 스크립트(generate_dummy_resume 등)에서 OpenAI를 쓸 때:
+OPENAI_API_KEY=your_openai_api_key
+OPENAI_MODEL=gpt-4o
 CAREERNET_API_KEY=your_api_key
 QNET_API_KEY=your_api_key
 ```
@@ -224,7 +223,7 @@ QNET_API_KEY=your_api_key
 - React 18
 - TypeScript
 - Vite
-- Azure OpenAI API
+- OpenAI·Google Gemini·Anthropic Claude API (앱에서 제공자 선택)
 - Python (DOCX·PDF 파싱, 임베디드 Python 우선)
 
 ## 프로젝트 구조

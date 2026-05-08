@@ -526,51 +526,50 @@ def load_env_file():
     return env_vars
 
 
-def call_azure_openai(prompt: str, system_prompt: str = None, max_tokens: int = 1000, temperature: float = 0.7) -> Optional[str]:
-    """Azure OpenAI API 호출"""
+def call_openai_chat(prompt: str, system_prompt: str = None, max_tokens: int = 1000, temperature: float = 0.7) -> Optional[str]:
+    """OpenAI Chat Completions API 호출 (api.openai.com)"""
     env_vars = load_env_file()
-    
-    api_key = env_vars.get('AZURE_OPENAI_API_KEY') or os.getenv('AZURE_OPENAI_API_KEY')
-    endpoint = env_vars.get('AZURE_OPENAI_ENDPOINT') or os.getenv('AZURE_OPENAI_ENDPOINT') or 'https://roar-mjm4cwji-swedencentral.openai.azure.com/'
-    deployment = env_vars.get('AZURE_OPENAI_DEPLOYMENT') or os.getenv('AZURE_OPENAI_DEPLOYMENT') or 'gpt-4o'
-    api_version = env_vars.get('AZURE_OPENAI_API_VERSION') or os.getenv('AZURE_OPENAI_API_VERSION') or '2024-12-01-preview'
-    
+
+    api_key = env_vars.get('OPENAI_API_KEY') or os.getenv('OPENAI_API_KEY')
+    model = env_vars.get('OPENAI_MODEL') or os.getenv('OPENAI_MODEL') or 'gpt-4o'
+
     if not api_key:
         return None
-    
-    url = f"{endpoint.rstrip('/')}/openai/deployments/{deployment}/chat/completions?api-version={api_version}"
-    
+
+    url = 'https://api.openai.com/v1/chat/completions'
+
     messages = []
     if system_prompt:
         messages.append({"role": "system", "content": system_prompt})
     messages.append({"role": "user", "content": prompt})
-    
+
     try:
         response = requests.post(
             url,
             headers={
-                "api-key": api_key,
-                "Content-Type": "application/json"
+                'Authorization': f'Bearer {api_key}',
+                'Content-Type': 'application/json',
             },
             json={
-                "messages": messages,
-                "max_tokens": max_tokens,
-                "temperature": temperature
+                'model': model,
+                'messages': messages,
+                'max_tokens': max_tokens,
+                'temperature': temperature,
             },
-            timeout=60
+            timeout=60,
         )
-        
+
         if response.status_code == 200:
             result = response.json()
             if 'choices' in result and len(result['choices']) > 0:
                 return result['choices'][0]['message']['content'].strip()
         else:
-            print(f"  WARNING: Azure OpenAI API 오류: {response.status_code} - {response.text[:200]}")
+            print(f'  WARNING: OpenAI API 오류: {response.status_code} - {response.text[:200]}')
             return None
     except Exception as e:
-        print(f"  WARNING: AI 호출 실패: {e}")
+        print(f'  WARNING: AI 호출 실패: {e}')
         return None
-    
+
     return None
 
 
@@ -647,7 +646,7 @@ def generate_resume_data_with_ai(character_description: str = None, field_descri
 5. 회사명, 학교명은 실제와 유사하게
 6. 반드시 유효한 JSON만 출력 (설명 없이)"""
 
-    ai_result = call_azure_openai(prompt, system_prompt, max_tokens=2000, temperature=0.8)
+    ai_result = call_openai_chat(prompt, system_prompt, max_tokens=2000, temperature=0.8)
     
     if not ai_result:
         return None
@@ -718,7 +717,7 @@ def generate_self_introduction(use_ai: bool = False, name: str = "", career_info
 
 자기소개서 내용만 작성해주세요. 주제나 제목은 포함하지 마세요."""
 
-            ai_result = call_azure_openai(prompt, system_prompt)
+            ai_result = call_openai_chat(prompt, system_prompt)
             if ai_result:
                 introductions.append(ai_result)
             else:
@@ -758,7 +757,7 @@ def generate_career_detail(use_ai: bool = False, career: Dict = None) -> str:
 
 경력기술서 내용만 작성해주세요. 회사명이나 기간 등은 포함하지 마세요."""
 
-        ai_result = call_azure_openai(prompt, system_prompt)
+        ai_result = call_openai_chat(prompt, system_prompt)
         if ai_result:
             return ai_result
         else:
@@ -1163,10 +1162,10 @@ def main():
     # AI 사용 여부 확인 (기본값: True)
     if args.use_ai:
         env_vars = load_env_file()
-        api_key = env_vars.get('AZURE_OPENAI_API_KEY') or os.getenv('AZURE_OPENAI_API_KEY')
+        api_key = env_vars.get('OPENAI_API_KEY') or os.getenv('OPENAI_API_KEY')
         if not api_key:
-            print("WARNING: Azure OpenAI API 키가 설정되지 않았습니다.")
-            print("  .env 파일에 AZURE_OPENAI_API_KEY를 설정하거나 --no-ai 옵션을 사용하세요.")
+            print('WARNING: OpenAI API 키가 설정되지 않았습니다.')
+            print('  .env 파일에 OPENAI_API_KEY를 설정하거나 --no-ai 옵션을 사용하세요.')
             print("  AI 없이 생성합니다...")
             args.use_ai = False
     

@@ -1,6 +1,6 @@
 # Career Fit Scoring Electron App
 
-Electron 데스크톱 앱입니다. DOCX·PDF 이력서를 파싱한 뒤 **Azure OpenAI**로 적합도·등급·근거를 평가합니다. 직종·자격 목록은 **커리어넷·Q-Net** API로 조회하며, 실패 시 로컬 백업 데이터를 사용할 수 있습니다.
+Electron 데스크톱 앱입니다. DOCX·PDF 이력서를 파싱한 뒤 **선택한 AI 제공자**(OpenAI·Gemini·Claude 등)로 적합도·등급·근거를 평가합니다. 직종·자격 목록은 **커리어넷·Q-Net** API로 조회하며, 실패 시 로컬 백업 데이터를 사용할 수 있습니다.
 
 **버전**은 이 디렉터리의 `package.json`의 `version`을 따릅니다(루트 Core 패키지와 맞춤).
 
@@ -37,7 +37,7 @@ npm install
 ### API 키·인증서
 
 - **패키지/실사용**: 기동 시 저장된 `.enc` 경로를 읽거나, **인증서 선택 창**에서 회사 발급 `.enc`를 지정합니다. 복호화·서명 검증은 **메인 프로세스**(`electron/main.ts`)에서만 수행되며, 키는 **렌더러 번들에 넣지 않습니다**.
-- **개발**: `userData`의 `cert-config-dev.json`에 마지막으로 선택한 `.enc` 경로가 저장됩니다. 또는 터미널에서 `AZURE_OPENAI_*` 등을 export한 뒤 `npm run dev` (팀 정책에 따름).
+- **개발**: `userData`의 `cert-config-dev.json`에 마지막으로 선택한 `.enc` 경로가 저장됩니다. 커리어넷/Q-Net 등은 `.enc` 또는 환경 변수로 주입할 수 있습니다(팀 정책에 따름). 이력서 AI 평가 키는 앱 **API 키 설정**에서 등록합니다.
 
 ## 프로덕션 빌드
 
@@ -58,7 +58,7 @@ Windows 설치본·패처는 **Poppler** 포함 여부를 빌드 스크립트로
 
 | 영역 | 설명 |
 |------|------|
-| **메인 프로세스** | `electron/main.ts` — IPC, 파싱(`process-resume`), Azure OpenAI, 캐시, 커리어넷/Q-Net, `.enc` 로드 |
+| **메인 프로세스** | `electron/main.ts` — IPC, 파싱(`process-resume`), AI 제공자 API 호출, 캐시, 커리어넷/Q-Net, `.enc` 로드 |
 | **프리로드** | `electron/preload.ts` — `contextBridge`로 `window.electron` API 노출 |
 | **렌더러** | `src/` — React 18, `JobConfigForm`, `ResultView`, `ResumeFileList` 등 |
 | **종합 점수** | `ResultView`에서 AI `evaluations`·등급·채용 설정 **가중치**로 계산. 필수 요구사항 **X** → **0**. `result.totalScore` 필드는 이 값과 무관(파싱 직후 0 고정) |
