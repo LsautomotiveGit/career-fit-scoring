@@ -23,3 +23,5 @@ scripts/parse_all_pdfs_standalone.py
 pdf_resume/*.pdf
 pdf_resume/parsed/
 pdf_resume/debug/
+# 더미 이력서 등 로컬 생성물 (저장소 미포함)
+generated_resumes/

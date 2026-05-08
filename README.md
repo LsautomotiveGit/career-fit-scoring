@@ -204,9 +204,7 @@ PDF 파싱은 **pdftotext(poppler)만** 사용합니다(레거시 pdfminer.six·
 
 ```bash
 # 로컬 개발 시 참고용 (예시 — 실제 값은 비밀 관리 정책에 따름)
-# 스크립트(generate_dummy_resume 등)에서 OpenAI를 쓸 때:
-OPENAI_API_KEY=your_openai_api_key
-OPENAI_MODEL=gpt-4o
+# 커리어넷/Q-Net은 메인 프로세스 환경 변수로 주입 가능. 이력서 AI 키는 앱 API 키 설정에서 등록.
 CAREERNET_API_KEY=your_api_key
 QNET_API_KEY=your_api_key
 ```
@@ -242,9 +240,9 @@ career-fit-scoring/
 │   │   ├── components/     # React 컴포넌트 (JobConfigForm, ResultView, LoadingSpinner 등)
 │   │   └── styles/        # CSS 스타일
 │   └── scripts/            # 빌드·Poppler 검증 스크립트
-├── scripts/                # 유틸리티 스크립트 (parse_pdf_resume.py, list_pdf_images.py 등)
+├── scripts/                # 파싱용 Python·빌드 JS (parse_pdf_resume.py, setup-python-env.js 등)
 ├── python-embed/           # 임베디드 Python (DOCX·PDF 파싱 시 우선 사용)
-└── docs/                   # PDF 관련 등 부가 문서
+└── docs/                   # 파싱 동작 참고 (PARSING_DOCX/PARSING_PDF 등)
 ```
 
 ## 사용 예제
@@ -308,4 +306,4 @@ MIT License - 자유롭게 사용, 수정, 배포 가능합니다.
 - [RESUME_FORM_MAPPING_GUIDE.md](./RESUME_FORM_MAPPING_GUIDE.md) - 이력서 형식 매핑 가이드
 - [RESUME_MAPPING_UPDATE.md](./RESUME_MAPPING_UPDATE.md) - 이력서 매핑 업데이트
 - [electron-app/README.md](./electron-app/README.md) - Electron 앱 상세 문서
-- [docs/](./docs/) - PDF 업로드·비교 등 부가 문서
+- [docs/](./docs/) - DOCX/PDF 파싱 참고 문서
