@@ -458,10 +458,10 @@ async function setupAutoUpdater() {
     if (autoUpdater && typeof autoUpdater.setFeedURL === 'function') {
       autoUpdater.setFeedURL({
         provider: 'github',
-        owner: 'LSAutomotive',
+        owner: 'LsautomotiveGit',
         repo: 'career-fit-scoring'
       });
-      const msg2 = '[AutoUpdater] Feed URL set: LSAutomotive/career-fit-scoring';
+      const msg2 = '[AutoUpdater] Feed URL set: LsautomotiveGit/career-fit-scoring';
       console.log(msg2);
       writeLog(msg2, 'info');
     } else {
