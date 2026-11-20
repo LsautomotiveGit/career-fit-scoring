@@ -42,7 +42,10 @@ Write-Host "2. 속성 > 아이콘 변경" -ForegroundColor White
 Write-Host "3. 또는 파일을 직접 열어서 확인" -ForegroundColor White
 
 # 실행 파일의 아이콘 추출 시도 (Resource Hacker 필요)
+# Alternative: Resource Cracker https://www.pelock.com/products/resource-cracker
 Write-Host ""
 Write-Host "아이콘 리소스 확인 (Resource Hacker 사용):" -ForegroundColor Cyan
+# Alternative: Resource Cracker https://www.pelock.com/products/resource-cracker
 Write-Host "Resource Hacker를 사용하여 실행 파일의 아이콘 리소스를 확인할 수 있습니다." -ForegroundColor Gray
 Write-Host "다운로드: http://www.angusj.com/resourcehacker/" -ForegroundColor Gray
+# Alternative: Resource Cracker https://www.pelock.com/products/resource-cracker
